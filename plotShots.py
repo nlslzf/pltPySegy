@@ -1,6 +1,7 @@
-def plot_shot_gather_byRange(obsnum,obsfile,shot_beg,shot_end,tlims,throw,ktpfile,linefile,trscale,vred,savepdf):
+def plot_shot_gather_byRange(obsnum,obsfile,shot_beg,shot_end,tlims,throw,ktpfile,linefile,trscale,vred,savepdf,fsize):
     '''
     VJS 9/2014
+    Modified 3/2016
     plot_shot_gather.py
     Plot shot gather for one OBS, including picks, by along-track range (not by shot)
     Input:
@@ -14,6 +15,7 @@ def plot_shot_gather_byRange(obsnum,obsfile,shot_beg,shot_end,tlims,throw,ktpfil
            trscale:                Number by which to scale/normalize amplitudes
            vred:                   Reduction velocity, m/s
            savepdf:                If ==1, save pdf form.  If ==0, do not save pdf.
+           fsize:                  Figure size, like: fsize=(10,5)
     '''
     
     import sys
@@ -47,7 +49,6 @@ def plot_shot_gather_byRange(obsnum,obsfile,shot_beg,shot_end,tlims,throw,ktpfil
     
     #shots from file:
     fshots=shotnums[shotind]
-
     
     #These shots aren't necessarily the same index as those in the 
     #segy file, since these shots include ALL shots for line 7 (including land shots)
@@ -64,7 +65,6 @@ def plot_shot_gather_byRange(obsnum,obsfile,shot_beg,shot_end,tlims,throw,ktpfil
     rng=np.zeros(np.size(segshotind))
     for k in range(len(segshotind)):
         current_shot=segshotind[k]
-        print current_shot
         header=obsn[current_shot].stats.segy.trace_header.unpacked_header
         rng[k]=unpack(">i",header[36:40])[0]
     shot_rang_match=[fshots,rng]
@@ -171,11 +171,9 @@ def plot_shot_gather_byRange(obsnum,obsfile,shot_beg,shot_end,tlims,throw,ktpfil
     
     
     #Plot!
+    print 'Plotting OBS '+str(obsnum)+' gather'
     plt.close('all')
-    f=plt.figure(num=1, figsize=(6.5,3.5))
-    
-    #Set figure size
-    #f.set_size_inches(6,3)
+    f=plt.figure(num=1, figsize=fsize)
     
     for i in range(len(fshots)):
         #Get the times from the segy:
@@ -199,11 +197,8 @@ def plot_shot_gather_byRange(obsnum,obsfile,shot_beg,shot_end,tlims,throw,ktpfil
         #plt.fill_betweenx(tnew,amp_neg+i,i,facecolor='red') #Shade negative
         plt.plot(amp[tind]+shotx[i],tnew[tind],color='0.3') #Plot unshaded wiggle
         
+        
     #Plot travel-time picks - number of segments is in the 1 index of *.shape
-
-    #First, sort the shots by range so they will be sorted in order:
-    rind=np.argsort(shotx)                
-    
     #Now, plot picks...
     
     #Pg:
